@@ -1,6 +1,6 @@
 {
   "name": "untar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a simple tar file unpacker",
   "keywords": [
     "tar"
@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "tar-parse": "0.0.2",
-    "foreach": "https://github.com/jkroso/forEach/archive/0.2.1.tar.gz",
+    "foreach": "https://github.com/jkroso/forEach/archive/0.3.0.tar.gz",
     "laissez-faire": "~0.12.1",
     "path": "https://github.com/jkroso/path/archive/1.1.0.tar.gz",
     "writefile": "~0.1.0"
   },
   "devDependencies": {
-    "when-all": "https://github.com/jkroso/when-all/archive/0.2.1.tar.gz"
+    "when-all": "https://github.com/jkroso/when-all/archive/0.2.2.tar.gz"
   }
 }

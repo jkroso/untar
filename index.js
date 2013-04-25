@@ -3,8 +3,8 @@ var common = require('path/common')
   , join = require('path/join')
   , Promise = require('laissez-faire/full')
   , parse = require('tar-parse')
-  , each = require('foreach/async')
-  , write = require('writefile')
+  , each = require('foreach/async-promised')
+  , write = require('writefile/stream')
 
 /**
  * Place the contents of a tar stream into the 
@@ -18,10 +18,11 @@ module.exports = function(dest, pkg){
 			.replace(/^\//, '')
 			.replace('/', '\\/')
 		var regx = new RegExp('^\\/?'+base+'\\/?')
-		return each(files, function(stream, path, done){
+		return each(files, function(stream, path){
 			path = join(dest, path.replace(regx, ''))
-			write(path, stream).node(done)
+			var promise = write(path, stream)
 			stream.resume()
+			return promise
 		})
 	})
 }
