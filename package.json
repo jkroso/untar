@@ -1,0 +1,23 @@
+{
+  "name": "untar",
+  "version": "0.1.0",
+  "description": "a simple tar file unpacker",
+  "keywords": [
+    "tar"
+  ],
+  "author": "Jake Rosoman<jkroso@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jkroso/untar.git"
+  },
+  "dependencies": {
+    "tar-parse": "0.0.2",
+    "foreach": "https://github.com/jkroso/forEach/archive/0.2.1.tar.gz",
+    "laissez-faire": "~0.12.1",
+    "path": "https://github.com/jkroso/path/archive/1.1.0.tar.gz",
+    "writefile": "~0.1.0"
+  },
+  "devDependencies": {
+    "when-all": "https://github.com/jkroso/when-all/archive/0.2.1.tar.gz"
+  }
+}
