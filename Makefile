@@ -1,8 +1,8 @@
 clean:
-	rm -r examples/compare-equals
-	rm -r examples/compare-type
+	rm -r test/compare-equals
+	rm -r test/compare-type
 
 test:
-	node examples/index.js
+	node test/index.js
 
 .PHONY: clean test

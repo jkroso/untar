@@ -27,7 +27,7 @@ The untar function takes a path to a target directory and a stream for a tar fil
 
 ```bash
 $ npm install
-$ node examples/index.js
+$ node test
 ```
 ## todo
 
