@@ -27,8 +27,9 @@ The untar function takes a path to a target directory and a stream for a tar fil
 
 ```bash
 $ npm install
-$ node test
+$ node test/server & make test
 ```
+
 ## todo
 
 add a separate function for handling buffered tars

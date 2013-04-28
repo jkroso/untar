@@ -1,8 +1,7 @@
-clean:
-	rm -r test/compare-equals
-	rm -r test/compare-type
-
 test:
-	node test/index.js
+	@node_modules/.bin/mocha \
+		--reporter spec \
+		--bail \
+		test/index.test.js
 
-.PHONY: clean test
+.PHONY: test
