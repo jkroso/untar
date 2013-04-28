@@ -2,7 +2,7 @@
 var common = require('path/common')
   , join = require('path/join')
   , Promise = require('laissez-faire/full')
-  , parse = require('tar-parse')
+  , Parser = require('tar').Parse
   , each = require('foreach/series/promise')
   , write = require('writefile')
   , promisify = require('promisify')
@@ -69,8 +69,8 @@ function makeChopper(fat){
 function unpack(pkg){
 	var p = new Promise
 	var files = []
-	pkg.pipe(parse())
-		.on('data', function(entry){
+	pkg.pipe(new Parser)
+		.on('entry', function(entry){
 			var file = new Promise
 			files.push(file)
 			var buf = ''
@@ -84,7 +84,7 @@ function unpack(pkg){
 				.on('error', function(e){ file.reject(e) })
 		})
 		.on('error', function(e){ p.reject(e) })
-		.on('end', function(){ 
+		.on('end', function(){
 			all(files).then(
 				function(v){ p.fulfill(v) },
 				function(e){ p.reject(e) })
