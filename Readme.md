@@ -1,7 +1,7 @@
 
 # untar
 
-  A simple tar file unpacker. tar files are a bit of a box of chocolates in that you never know what the top level directory within them is going to be called or how many excess directories there might be. This function takes care of that problem by chopping off all unnecessary path segments.
+  A simple tar file unpacker. tar files are a bit of a box of chocolates in that you never know what the top level directory within them is going to be called or how many excess directories there might be. This module takes care of that problem by chopping off all unnecessary path segments as it writes files to your destination directory.
 
 ## Getting Started
 
@@ -19,9 +19,9 @@ var untar = require('untar')
 
 - [untar()](#untar)
 
-### untar(String, Stream)
+### untar(path:String, tarfile:Stream)
 
-The untar function takes a path to a target directory and a stream for a tar file. It returns a promise which will resolve on completion. 
+The untar function takes a path to a target directory and a stream for a tar file. It returns a [Result](//github.com/jkroso/result).
 
 ## Running the tests
 
@@ -33,7 +33,3 @@ $ node test/server & make test
 ## todo
 
 add a separate function for handling buffered tars
-
-## License 
-
-[MIT](License)
