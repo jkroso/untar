@@ -1,18 +1,21 @@
 
 var common = require('path/common')
-  , join = require('path/join')
-  , Promise = require('laissez-faire/full')
-  , Parser = require('tar').Parse
+  , resultify = require('resultify')
+  , mkdir = resultify(require('mkdirp'))
   , each = require('foreach/series')
+  , Parser = require('tar').Parse
   , write = require('writefile')
-  , promisify = require('promisify')
-  , mkdir = promisify(require('mkdirp'))
+  , join = require('path/join')
+  , Result = require('result')
   , all = require('when-all')
 
 /**
  * Place the contents of a tar stream into the 
  * `dest` directory
- * (String dir, Stream tar) -> Promise nil
+ * 
+ * @param {String} dest
+ * @param {Stream} pkg
+ * @return {Result}
  */
 
 module.exports = function(dest, pkg){
@@ -60,18 +63,20 @@ function makeChopper(fat){
 
 /**
  * unpack the contents `pkg` into an Object
- * (Stream) -> Promise object
+ * 
+ * @param {Stream} pkg
+ * @return {Result}
  */
-// fuck streams1 suck! I'm buffering their contents 
+// fuck streaming tars sucks! I'm buffering their contents 
 // here because pausing one stream causes the whole
 // parsing stream to pause which means I don't get any
 // more entries which means the process never completes
 function unpack(pkg){
-	var p = new Promise
+	var result = new Result
 	var files = []
 	pkg.pipe(new Parser)
 		.on('entry', function(entry){
-			var file = new Promise
+			var file = new Result
 			files.push(file)
 			var buf = ''
 			entry.on('data', function(data){
@@ -79,15 +84,15 @@ function unpack(pkg){
 				})
 				.on('end', function(){ 
 					entry.text = buf
-					file.fulfill(entry)
+					file.write(entry)
 				})
-				.on('error', function(e){ file.reject(e) })
+				.on('error', function(e){ file.error(e) })
 		})
-		.on('error', function(e){ p.reject(e) })
+		.on('error', function(e){ result.error(e) })
 		.on('end', function(){
 			all(files).then(
-				function(v){ p.fulfill(v) },
-				function(e){ p.reject(e) })
+				function(v){ result.write(v) },
+				function(e){ result.error(e) })
 		})
-	return p
+	return result
 }
