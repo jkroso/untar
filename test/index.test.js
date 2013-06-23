@@ -1,8 +1,8 @@
 
 var untar = require('..')
   , read = require('fs').createReadStream
-  , equals = require('fs-equals')
-  , promise = require('laissez-faire')
+  , equals = require('fs-equals/assert')
+  , result = require('result/lazy')
   , exec = require('child_process').exec
   , spawn = require('child_process').spawn
   , request = require('hyperquest')
@@ -24,16 +24,12 @@ describe('untar', function () {
 		it('one excess segment (github format)', function (done) {
 			untar(temp, read(type_tar)).then(function(){
 				return equals(temp, type_dir)
-			}).then(function(ok){
-				if (!ok) throw new Error('not equal')
 			}).node(done)
 		})
 		
 		it('multiple excess segments', function (done) {
 			untar(temp, read(eq_tar)).then(function(){
 				return equals(temp, eq_dir)
-			}).then(function(ok){
-				if (!ok) throw new Error('not equal')
 			}).node(done)
 		})
 	})
@@ -42,8 +38,6 @@ describe('untar', function () {
 		it('should work', function (done) {
 			untar(temp, spawn('tar', ['c', eq_dir]).stdout).then(function(){
 				return equals(temp, eq_dir)
-			}).then(function(ok){
-				if (!ok) throw new Error('not equal')
 			}).node(done)
 		})
 	})
@@ -56,9 +50,6 @@ describe('untar', function () {
 				})
 				.then(function(){
 					return equals(temp, eq_dir)
-				})
-				.then(function(ok){
-					if (!ok) throw new Error('not equal')
 				}).node(done)
 		})
 	})
@@ -70,7 +61,7 @@ describe('untar', function () {
  */
 
 function download(url){
-	return promise(function(fulfill, reject){
+	return result(function(fulfill, reject){
 		getURL(url, function(e, res){
 			if (e) reject(e)
 			else fulfill(res)
