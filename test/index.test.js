@@ -1,10 +1,10 @@
 
 var untar = require('..')
   , read = require('fs').createReadStream
-  , equals = require('fs-equals/assert')
-  , result = require('result/lazy')
-  , exec = require('child_process').exec
   , spawn = require('child_process').spawn
+  , exec = require('child_process').exec
+  , equals = require('fs-equals/assert')
+  , result = require('result/defer')
   , request = require('hyperquest')
 
 describe('untar', function () {

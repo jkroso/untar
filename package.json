@@ -1,6 +1,6 @@
 {
   "name": "untar",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "a simple tar file unpacker",
   "keywords": [
     "tar",
@@ -14,22 +14,19 @@
     "url": "git://github.com/jkroso/untar.git"
   },
   "dependencies": {
-    "foreach": "https://github.com/jkroso/forEach/tarball/0.8.3",
+    "foreach": "https://github.com/jkroso/forEach/tarball/0.8.5",
     "path": "http://github.com/jkroso/path/tarball/1.1.0",
-    "writefile": "0.2.1",
-    "resultify": "0.2.2",
-    "when-all": "0.4.2",
+    "writefile": "0.2.3",
+    "resultify": "0.2.4",
+    "when-all": "0.4.4",
     "mkdirp": "0.3.5",
-    "result": "0.2.0",
+    "result": "0.3.1",
     "tar": "0.1.17",
     "result-type": "1.0.0"
   },
   "devDependencies": {
-    "fs-equals": "0.2.2",
-    "mocha": "1.11.0",
+    "fs-equals": "0.2.4",
+    "mocha": "1.12.0",
     "hyperquest": "0.1.4"
-  },
-  "scripts": {
-    "install": "npm dedupe"
   }
 }
