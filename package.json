@@ -18,7 +18,6 @@
     "path": "http://github.com/jkroso/path/tarball/1.1.0",
     "writefile": "0.2.3",
     "resultify": "0.2.4",
-    "when-all": "0.4.4",
     "mkdirp": "0.3.5",
     "result": "0.3.1",
     "tar": "0.1.17",

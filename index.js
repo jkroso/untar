@@ -7,7 +7,6 @@ var common = require('path/common')
   , write = require('writefile')
   , join = require('path/join')
   , Result = require('result')
-  , all = require('when-all')
 
 /**
  * Place the contents of a tar stream into the 
