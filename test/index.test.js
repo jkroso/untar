@@ -9,7 +9,7 @@ var untar = require('..')
 
 describe('untar', function () {
 	var temp = __dirname + '/temp'
-	afterEach(function (done) {
+	beforeEach(function (done) {
 		exec('rm -rf '+temp, done)
 	})
 
@@ -52,6 +52,18 @@ describe('untar', function () {
 					return equals(temp, eq_dir)
 				}).node(done)
 		})
+	})
+
+	describe('with assorted file encodings', function(){
+		it('should handle image files', function(done){
+			untar(temp, read(__dirname + '/connect.tar')).then(function(){
+				return equals(temp, __dirname + '/connect')
+			}).node(done)
+		})
+	})
+
+	after(function (done) {
+		exec('rm -rf '+temp, done)
 	})
 })
 

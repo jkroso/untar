@@ -35,7 +35,7 @@ module.exports = function(dest, pkg){
 		// write
 		return each(files, function(file){
 			if (file.type == 'Directory') return mkdir(file.path)
-			return write(file.path, file.text)
+			return write(file.path, file.buf)
 		})
 	})
 }
@@ -76,23 +76,23 @@ function unpack(pkg){
 	var files = []
 	pkg.pipe(new Parser)
 		.on('entry', function(entry){
-			var file = new Result
-			files.push(file)
-			var buf = ''
-			entry.on('data', function(data){
-					buf += data
+			files.push(entry)
+			var buf = []
+			entry
+				.on('data', function(chunk){
+					buf.push(chunk)
 				})
-				.on('end', function(){ 
-					entry.text = buf
-					file.write(entry)
+				.on('end', function(){
+					entry.buf = Buffer.concat(buf)
 				})
-				.on('error', function(e){ file.error(e) })
+				.on('error', error)
 		})
-		.on('error', function(e){ result.error(e) })
+		.on('error', error)
 		.on('end', function(){
-			all(files).then(
-				function(v){ result.write(v) },
-				function(e){ result.error(e) })
+			result.write(files)
 		})
+	function error(e){
+		result.error(e)
+	}
 	return result
 }
