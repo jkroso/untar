@@ -1,47 +1,86 @@
 
-var lift = require('lift-result/cps')
+var symlink = require('lift-result/fs').symlink
+var liftCPS = require('lift-result/cps')
+var lift = require('lift-result')
 var each = require('foreach/series')
-var mkdir = lift(require('mkdirp'))
+var writeFile = require('writefile')
+var mkdir = liftCPS(require('mkdirp'))
 var common = require('path/common')
 var Parser = require('tar').Parse
-var write = require('writefile')
 var join = require('path/join')
 var Result = require('result')
 
 /**
- * Place the contents of a tar stream into the 
+ * Place the contents of the `tar` stream into the
  * `dest` directory
- * 
+ *
  * @param {String} dest
  * @param {Stream} pkg
  * @return {Result}
  */
 
-module.exports = function(dest, pkg){
-	return unpack(pkg).then(function(files){
-		var paths = files
-			.filter(function(f){ return f.type != 'Directory' })
-			.map(function(f){ return f.path })
+module.exports = lift(function(dest, tar){
+	var entries = mutatePaths(getEntries(tar), dest)
+	return each(entries, write)
+})
 
-		var chop = makeChopper(common(paths))
-		// compute paths and drop unnecessary dirs
-		files = files.filter(function(file){
-			var relative = chop(file.path)
-			file.path = join(dest, relative)
-			return relative
-		})
+/**
+ * map old paths to their news ones within `dest`
+ * it will also filter out any top level
+ * directories with no files in them
+ *
+ * @param {Array} files
+ * @param {String} dest
+ * @return {Array}
+ */
 
-		// write
-		return each(files, function(file){
-			if (file.type == 'Directory') return mkdir(file.path)
-			return write(file.path, file.buf)
-		})
+var mutatePaths = lift(function(files, dest){
+	var fat = common(files
+		.filter(notDirectory)
+		.map(getPath))
+	var chop = makeChopper(fat)
+	return files.filter(function(file){
+		var relative = chop(file.path)
+		file.path = join(dest, relative)
+		return Boolean(relative)
 	})
+})
+
+function getPath(entry){
+	return entry.path
+}
+
+function notDirectory(entry){
+	return entry.type != 'Directory'
 }
 
 /**
- * generate a function which chops `fat` from paths
- * (String) -> (String) -> String
+ * write entry to disk
+ *
+ * @param {Entry} file
+ * @return {Result}
+ * @api private
+ */
+
+function write(file){
+	var meta = file.props
+	switch (file.type) {
+		case 'Directory': return mkdir(file.path)
+		case 'SymbolicLink': return symlink(meta.linkpath, file.path)
+		default: return writeFile(file.path, file.buf)
+	}
+}
+
+/**
+ * make a function which will chop `fat` from paths
+ * its given
+ *
+ *   chopper('/a')('/a/b') // => 'b'
+ *
+ * @param {String} fat
+ * @return {Function}
+ * @api private
+ * TODO: simplify
  */
 
 function makeChopper(fat){
@@ -61,37 +100,42 @@ function makeChopper(fat){
 }
 
 /**
- * unpack the contents `pkg` into an Object
- * 
+ * pull an array of entries out of the `tar` stream
+ *
  * @param {Stream} pkg
  * @return {Result}
+ * @api private
  */
-// fuck streaming tars sucks! I'm buffering their contents 
+
+// fuck streaming tars sucks! I'm buffering their contents
 // here because pausing one stream causes the whole
 // parsing stream to pause which means I don't get any
 // more entries which means the process never completes
-function unpack(pkg){
+
+function getEntries(tar){
 	var result = new Result
 	var files = []
-	pkg.pipe(new Parser)
-		.on('entry', function(entry){
-			files.push(entry)
-			var buf = []
-			entry
-				.on('data', function(chunk){
-					buf.push(chunk)
-				})
-				.on('end', function(){
-					entry.buf = Buffer.concat(buf)
-				})
-				.on('error', error)
-		})
-		.on('error', error)
-		.on('end', function(){
-			result.write(files)
-		})
-	function error(e){
+	tar.pipe(new Parser)
+	.on('entry', function(entry){
+		files.push(entry)
+		var buf = []
+		entry
+			.on('data', function(chunk){
+				buf.push(chunk)
+			})
+			.on('end', function(){
+				entry.buf = Buffer.concat(buf)
+			})
+			.on('error', onError)
+	})
+	.on('error', onError)
+	.on('end', function(){
+		result.write(files)
+	})
+
+	function onError(e){
 		result.error(e)
 	}
+
 	return result
 }
