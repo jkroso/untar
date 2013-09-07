@@ -1,15 +1,15 @@
 
+var read = require('fs').createReadStream
+var spawn = require('child_process').spawn
+var exec = require('child_process').exec
+var equals = require('fs-equals/assert')
+var result = require('result/defer')
+var request = require('hyperquest')
 var untar = require('..')
-  , read = require('fs').createReadStream
-  , spawn = require('child_process').spawn
-  , exec = require('child_process').exec
-  , equals = require('fs-equals/assert')
-  , result = require('result/defer')
-  , request = require('hyperquest')
 
-describe('untar', function () {
+describe('untar', function(){
 	var temp = __dirname + '/temp'
-	beforeEach(function (done) {
+	beforeEach(function(done){
 		exec('rm -rf '+temp, done)
 	})
 
@@ -20,30 +20,30 @@ describe('untar', function () {
 	var type_tar = __dirname+'/type.tar'
 	var type_dir = __dirname+'/type'
 
-	describe('relative paths within the tar', function () {
-		it('one excess segment (github format)', function (done) {
+	describe('relative paths within the tar', function(){
+		it('one excess segment (github format)', function(done){
 			untar(temp, read(type_tar)).then(function(){
 				return equals(temp, type_dir)
 			}).node(done)
 		})
 		
-		it('multiple excess segments', function (done) {
+		it('multiple excess segments', function(done){
 			untar(temp, read(eq_tar)).then(function(){
 				return equals(temp, eq_dir)
 			}).node(done)
 		})
 	})
 
-	describe('absolute paths within the tar', function () {
-		it('should work', function (done) {
+	describe('absolute paths within the tar', function(){
+		it('should work', function(done){
 			untar(temp, spawn('tar', ['c', eq_dir]).stdout).then(function(){
 				return equals(temp, eq_dir)
 			}).node(done)
 		})
 	})
 
-	describe('with http response streams', function () {
-		it('should work', function (done) {
+	describe('with http response streams', function(){
+		it('should work', function(done){
 			download('http://localhost:3009/equals')
 				.then(function(stream){
 					return untar(temp, stream)
@@ -62,7 +62,7 @@ describe('untar', function () {
 		})
 	})
 
-	after(function (done) {
+	after(function(done){
 		exec('rm -rf '+temp, done)
 	})
 })

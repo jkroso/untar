@@ -1,12 +1,12 @@
 
+var lift = require('lift-result/cps')
+var each = require('foreach/series')
+var mkdir = lift(require('mkdirp'))
 var common = require('path/common')
-  , resultify = require('resultify')
-  , mkdir = resultify(require('mkdirp'))
-  , each = require('foreach/series')
-  , Parser = require('tar').Parse
-  , write = require('writefile')
-  , join = require('path/join')
-  , Result = require('result')
+var Parser = require('tar').Parse
+var write = require('writefile')
+var join = require('path/join')
+var Result = require('result')
 
 /**
  * Place the contents of a tar stream into the 
