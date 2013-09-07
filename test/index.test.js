@@ -8,6 +8,13 @@ var exec = child.exec
 var result = require('result/defer')
 var request = require('hyperquest')
 var untar = require('..')
+var http = require('http')
+var path = require('path')
+
+http.createServer(function(req, res){
+	var dir = path.join(__dirname, req.url)
+	spawn('tar', ['c', dir]).stdout.pipe(res)
+}).listen(3009)
 
 describe('untar', function(){
 	var temp = __dirname + '/temp'
@@ -46,10 +53,7 @@ describe('untar', function(){
 
 	describe('with http response streams', function(){
 		it('should work', function(done){
-			download('http://localhost:3009/equals')
-				.then(function(stream){
-					return untar(temp, stream)
-				})
+			return untar(temp, download('http://localhost:3009/equals'))
 				.then(function(){
 					return equals(temp, eq_dir)
 				}).node(done)
