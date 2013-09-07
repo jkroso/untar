@@ -21,10 +21,9 @@
     "writefile": "0.2.3",
     "mkdirp": "0.3.5",
     "result": "0.4.2",
-    "tar": "0.1.17"
+    "tar": "0.1.18"
   },
   "devDependencies": {
-    "hyperquest": "0.1.4",
     "fs-equals": "0.2.4",
     "mocha": "1.12.1"
   }

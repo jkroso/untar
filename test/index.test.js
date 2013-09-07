@@ -1,15 +1,15 @@
 
-var fs = require('fs')
-var read = fs.createReadStream
 var equals = require('fs-equals/assert')
-var child = require('child_process')
-var spawn = child.spawn
-var exec = child.exec
 var result = require('result/defer')
-var request = require('hyperquest')
-var untar = require('..')
+var child = require('child_process')
 var http = require('http')
 var path = require('path')
+var untar = require('..')
+var fs = require('fs')
+
+var read = fs.createReadStream
+var spawn = child.spawn
+var exec = child.exec
 
 http.createServer(function(req, res){
 	var dir = path.join(__dirname, req.url)
@@ -53,7 +53,7 @@ describe('untar', function(){
 
 	describe('with http response streams', function(){
 		it('should work', function(done){
-			return untar(temp, download('http://localhost:3009/equals'))
+			return untar(temp, get('http://localhost:3009/equals'))
 				.then(function(){
 					return equals(temp, eq_dir)
 				}).node(done)
@@ -86,33 +86,20 @@ describe('untar', function(){
 })
 
 /**
- * Get a package in the .tar format
- * (String) -> Promise string
+ * Get a response stream
+ *
+ * @param {String} url
+ * @return {Result}
  */
 
-function download(url){
-	return result(function(fulfill, reject){
-		getURL(url, function(e, res){
-			if (e) reject(e)
-			else fulfill(res)
-		})
+function get(url){
+	return result(function(write, fail){
+		http.get(url, function res(res){
+			if (res.statusCode != 200) {
+				fail(new Error('status code ' + res.statusCode))
+			} else {
+				write(res)
+			}
+		}).on('error', fail)
 	})
-}
-
-/**
- * send request
- * (String, (error, response) -> nil) -> nil
- */
-
-function getURL(url, cb){
-	var stream = request(url)
-	stream.on('response', function response(response){
-		if (response.statusCode != 200) {
-			cb(new Error('status code ' + response.statusCode))
-		} else {
-			stream.removeListener('error', cb)
-			cb(null, stream)
-		}
-	})
-	stream.on('error', cb)
 }
