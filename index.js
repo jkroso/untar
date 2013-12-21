@@ -1,12 +1,11 @@
 
-var symlink = require('lift-result/fs').symlink
-var liftCPS = require('lift-result/cps')
-var lift = require('lift-result')
+var mkdir = require('lift-result/cps')(require('mkdirp'))
+var extract = require('tar-stream/extract')
 var each = require('foreach/series')
 var writeFile = require('writefile')
-var mkdir = liftCPS(require('mkdirp'))
 var common = require('path/common')
-var Parser = require('tar').Parse
+var fs = require('lift-result/fs')
+var lift = require('lift-result')
 var join = require('path/join')
 var Result = require('result')
 
@@ -40,14 +39,14 @@ var mutatePaths = lift(function(files, dest){
 		.map(getPath))
 	var chop = makeChopper(fat)
 	return files.filter(function(file){
-		var relative = chop(file.path)
-		file.path = join(dest, relative)
+		var relative = chop(file.name)
+		file.name = join(dest, relative)
 		return Boolean(relative)
 	})
 })
 
 function getPath(entry){
-	return entry.path
+	return entry.name
 }
 
 function notDirectory(entry){
@@ -63,11 +62,10 @@ function notDirectory(entry){
  */
 
 function write(file){
-	var meta = file.props
 	switch (file.type) {
-		case 'Directory': return mkdir(file.path)
-		case 'SymbolicLink': return symlink(meta.linkpath, file.path)
-		default: return writeFile(file.path, file.buf)
+		case 'directory':	return mkdir(file.name)
+		case 'symlink': return fs.symlink(file.linkname, file.name)
+		case 'file': return writeFile(file.name, file.buf)
 	}
 }
 
@@ -115,21 +113,20 @@ function makeChopper(fat){
 function getEntries(tar){
 	var result = new Result
 	var files = []
-	tar.pipe(new Parser)
-	.on('entry', function(entry){
-		files.push(entry)
+	tar.pipe(extract())
+	.on('entry', function(header, stream, next){
+		files.push(header)
 		var buf = []
-		entry
-			.on('data', function(chunk){
-				buf.push(chunk)
-			})
-			.on('end', function(){
-				entry.buf = Buffer.concat(buf)
-			})
-			.on('error', onError)
+		stream.on('readable', function(){
+			var chunk = stream.read()
+			chunk && buf.push(chunk)
+		}).on('end', function(){
+			header.buf = Buffer.concat(buf)
+			next()
+		}).on('error', onError)
 	})
 	.on('error', onError)
-	.on('end', function(){
+	.on('finish', function(){
 		result.write(files)
 	})
 
