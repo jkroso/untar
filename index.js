@@ -1,8 +1,8 @@
 
 var mkdir = require('lift-result/cps')(require('mkdirp'))
 var extract = require('tar-stream/extract')
+var writeFile = require('writefile/stream')
 var each = require('foreach/series')
-var writeFile = require('writefile')
 var common = require('path/common')
 var fs = require('lift-result/fs')
 var lift = require('lift-result')
@@ -65,7 +65,7 @@ function write(file){
 	switch (file.type) {
 		case 'directory':	return mkdir(file.name)
 		case 'symlink': return fs.symlink(file.linkname, file.name)
-		case 'file': return writeFile(file.name, file.buf)
+		case 'file': return writeFile(file.name, file.body)
 	}
 }
 
@@ -105,34 +105,22 @@ function makeChopper(fat){
  * @api private
  */
 
-// fuck streaming tars sucks! I'm buffering their contents
-// here because pausing one stream causes the whole
-// parsing stream to pause which means I don't get any
-// more entries which means the process never completes
-
 function getEntries(tar){
 	var result = new Result
 	var files = []
 	tar.pipe(extract())
-	.on('entry', function(header, stream, next){
-		files.push(header)
-		var buf = []
-		stream.on('readable', function(){
-			var chunk = stream.read()
-			chunk && buf.push(chunk)
-		}).on('end', function(){
-			header.buf = Buffer.concat(buf)
+		.on('entry', function(header, stream, next){
+			files.push(header)
+			header.body = stream
+			stream._writableState.highWaterMark = Infinity
+			stream._readableState.highWaterMark = Infinity
 			next()
-		}).on('error', onError)
-	})
-	.on('error', onError)
-	.on('finish', function(){
-		result.write(files)
-	})
-
-	function onError(e){
-		result.error(e)
-	}
-
+		})
+		.on('error', function onError(e){
+			result.error(e)
+		})
+		.on('finish', function(){
+			result.write(files)
+		})
 	return result
 }
