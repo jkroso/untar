@@ -11,7 +11,7 @@
     "lift-result": "~0.1.3",
     "result-type": "1.0.0",
     "tar-stream": "0.2.1",
-    "writefile": "~0.2.5",
+    "writefile": "~0.2.6",
     "result": "~0.4.4",
     "mkdirp": "0.3.5"
   },

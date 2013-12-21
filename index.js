@@ -65,7 +65,7 @@ function write(file){
 	switch (file.type) {
 		case 'directory':	return mkdir(file.name)
 		case 'symlink': return fs.symlink(file.linkname, file.name)
-		case 'file': return writeFile(file.name, file.body)
+		case 'file': return writeFile(file.name, file.body, {mode: file.mode})
 	}
 }
 
