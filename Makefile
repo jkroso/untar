@@ -6,7 +6,6 @@ test: node_modules
 		test/index.test.js
 
 node_modules: package.json
-	@npm i
-	@touch node_modules
+	@npm i && touch $@
 
 .PHONY: test
