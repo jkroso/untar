@@ -1,11 +1,10 @@
 
 test: node_modules
-	@node_modules/.bin/mocha \
-		--reporter spec \
-		--bail \
-		test/index.test.js
+	@node_modules/mocha/bin/mocha test/*.test.js \
+		--reporter dot \
+		--bail
 
 node_modules: package.json
-	@npm i && touch $@
+	@packin install --meta $< --folder $@
 
 .PHONY: test
