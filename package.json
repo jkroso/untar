@@ -8,15 +8,16 @@
   "dependencies": {
     "foreach": "jkroso/forEach#0.8.10",
     "path": "jkroso/path#1.1.0",
-    "lift-result": "~0.1.4",
-    "result-type": "1.0.0",
-    "tar-stream": "0.2.5",
+    "lift-result": "~0.1.5",
+    "tar-stream": "^0.3.3",
     "writefile": "~0.2.7",
-    "result": "~1.0.1",
-    "mkdirp": "0.3.5"
+    "result": "~1.0.2",
+    "mkdirp": "^0.5.0"
   },
   "devDependencies": {
     "fs-equals": "~0.2.6",
+    "better-assert": "*",
+    "solicit": "*",
     "mocha": "*"
   },
   "files": ["index.js"]

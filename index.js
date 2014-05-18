@@ -35,7 +35,7 @@ module.exports = lift(function(dest, tar){
 
 var mutatePaths = lift(function(files, dest){
 	var fat = common(files
-		.filter(notDirectory)
+		.filter(isEntry)
 		.map(getPath))
 	var chop = makeChopper(fat)
 	return files.filter(function(file){
@@ -49,8 +49,8 @@ function getPath(entry){
 	return entry.name
 }
 
-function notDirectory(entry){
-	return entry.type != 'Directory'
+function isEntry(entry){
+	return entry.type && entry.type != 'Directory'
 }
 
 /**
