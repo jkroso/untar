@@ -19,8 +19,8 @@ var Result = require('result')
  */
 
 module.exports = lift(function(dest, tar){
-	var entries = mutatePaths(getEntries(tar), dest)
-	return each(entries, write)
+  var entries = mutatePaths(getEntries(tar), dest)
+  return each(entries, write)
 })
 
 /**
@@ -34,23 +34,23 @@ module.exports = lift(function(dest, tar){
  */
 
 var mutatePaths = lift(function(files, dest){
-	var fat = common(files
-		.filter(isEntry)
-		.map(getPath))
-	var chop = makeChopper(fat)
-	return files.filter(function(file){
-		var relative = chop(file.name)
-		file.name = join(dest, relative)
-		return Boolean(relative)
-	})
+  var fat = common(files
+    .filter(isEntry)
+    .map(getPath))
+  var chop = makeChopper(fat)
+  return files.filter(function(file){
+    var relative = chop(file.name)
+    file.name = join(dest, relative)
+    return Boolean(relative)
+  })
 })
 
 function getPath(entry){
-	return entry.name
+  return entry.name
 }
 
 function isEntry(entry){
-	return entry.type && entry.type != 'Directory'
+  return entry.type && entry.type != 'Directory'
 }
 
 /**
@@ -62,11 +62,11 @@ function isEntry(entry){
  */
 
 function write(file){
-	switch (file.type) {
-		case 'directory':	return mkdir(file.name)
-		case 'symlink': return fs.symlink(file.linkname, file.name)
-		case 'file': return writeFile(file.name, file.body, {mode: file.mode})
-	}
+  switch (file.type) {
+    case 'directory': return mkdir(file.name)
+    case 'symlink': return fs.symlink(file.linkname, file.name)
+    case 'file': return writeFile(file.name, file.body, {mode: file.mode})
+  }
 }
 
 /**
@@ -82,19 +82,19 @@ function write(file){
  */
 
 function makeChopper(fat){
-	var tail = ''
-	var regex = fat.split('/').reduce(function(regex, seg){
-		tail += ')?'
-		return regex + '(?:\\/' + seg
-	})
-	regex += tail
-	// make the first slash optional
-	regex = regex.replace(/^\(\?:\\\//, '(?:\\/?')
-	regex = new RegExp('^'+regex+'\\/?')
+  var tail = ''
+  var regex = fat.split('/').reduce(function(regex, seg){
+    tail += ')?'
+    return regex + '(?:\\/' + seg
+  })
+  regex += tail
+  // make the first slash optional
+  regex = regex.replace(/^\(\?:\\\//, '(?:\\/?')
+  regex = new RegExp('^'+regex+'\\/?')
 
-	return function(path){
-		return path.replace(regex, '')
-	}
+  return function(path){
+    return path.replace(regex, '')
+  }
 }
 
 /**
@@ -106,21 +106,21 @@ function makeChopper(fat){
  */
 
 function getEntries(tar){
-	var result = new Result
-	var files = []
-	tar.pipe(extract())
-		.on('entry', function(header, stream, next){
-			files.push(header)
-			header.body = stream
-			stream._writableState.highWaterMark = Infinity
-			stream._readableState.highWaterMark = Infinity
-			next()
-		})
-		.on('error', function onError(e){
-			result.error(e)
-		})
-		.on('finish', function(){
-			result.write(files)
-		})
-	return result
+  var result = new Result
+  var files = []
+  tar.pipe(extract())
+    .on('entry', function(header, stream, next){
+      files.push(header)
+      header.body = stream
+      stream._writableState.highWaterMark = Infinity
+      stream._readableState.highWaterMark = Infinity
+      next()
+    })
+    .on('error', function onError(e){
+      result.error(e)
+    })
+    .on('finish', function(){
+      result.write(files)
+    })
+  return result
 }
